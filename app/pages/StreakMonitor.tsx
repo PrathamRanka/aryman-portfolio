@@ -5,14 +5,21 @@ import { useState, useEffect } from 'react';
 
 interface THMStats {
   username: string;
-  level: number;
-  rank: number;
+  rank: number | null;
   streak: number;
-  completedRoomsNumber: number;
-  badgesNumber: number;
   topPercentage: number;
-  avatar: string;
-  country: string;
+}
+
+const HTB_MAX_STREAK_WEEKS = 55;
+const INDIA_OFFSET_MS = 5.5 * 60 * 60 * 1000;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function getMillisecondsUntilIndiaMidnight() {
+  const now = Date.now();
+  const indiaTime = now + INDIA_OFFSET_MS;
+  const nextIndiaDay = (Math.floor(indiaTime / DAY_MS) + 1) * DAY_MS;
+
+  return nextIndiaDay - indiaTime;
 }
 
 export default function StreakMonitorPage() {
@@ -40,6 +47,17 @@ export default function StreakMonitorPage() {
     }
 
     fetchStats();
+
+    let dailyRefresh: ReturnType<typeof setInterval> | undefined;
+    const midnightRefresh = setTimeout(() => {
+      fetchStats();
+      dailyRefresh = setInterval(fetchStats, DAY_MS);
+    }, getMillisecondsUntilIndiaMidnight() + 1000);
+
+    return () => {
+      clearTimeout(midnightRefresh);
+      if (dailyRefresh) clearInterval(dailyRefresh);
+    };
   }, []);
 
   return (
@@ -210,7 +228,9 @@ function PlatformCard({
                           <span className="text-3xl">🏆</span>
                           <span className="font-mono text-sm uppercase tracking-wider text-gray-500">Global Rank</span>
                         </div>
-                        <div className="font-mono text-2xl font-bold text-neon-green break-all sm:text-3xl lg:text-4xl">#{stats.rank.toLocaleString()}</div>
+                        <div className="font-mono text-2xl font-bold text-neon-green break-all sm:text-3xl lg:text-4xl">
+                          {stats.rank ? `#${stats.rank.toLocaleString()}` : 'Unavailable'}
+                        </div>
                         <div className="mt-2 font-mono text-xs text-gray-600">worldwide</div>
                       </div>
 
@@ -221,7 +241,7 @@ function PlatformCard({
                           <span className="font-mono text-sm uppercase tracking-wider text-gray-500">Top Percentile</span>
                         </div>
                         <div className="font-mono text-4xl font-bold text-neon-green">{stats.topPercentage}%</div>
-                        <div className="mt-2 font-mono text-xs text-gray-600">of all users</div>
+                        <div className="mt-2 font-mono text-xs text-gray-600">Researcher</div>
                       </div>
                     </div>
 
@@ -252,6 +272,11 @@ function PlatformCard({
 
                   {/* Message */}
                   <div className="text-center">
+                    <div className="mb-5 rounded-lg border border-neon-green/30 bg-neon-green/5 px-8 py-4">
+                      <div className="font-mono text-xs uppercase tracking-wider text-gray-500">Max Streak</div>
+                      <div className="mt-1 font-mono text-4xl font-bold text-neon-green">{HTB_MAX_STREAK_WEEKS}</div>
+                      <div className="font-mono text-xs text-gray-600">weeks</div>
+                    </div>
                     <h3 className="mb-2 font-mono text-xl text-neon-green">Live Stats on Profile</h3>
                     <p className="font-mono text-sm text-gray-400">
                       Visit my HackTheBox profile for real-time stats,<br />
