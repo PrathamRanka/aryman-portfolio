@@ -7,6 +7,7 @@ export interface Project {
   tags: string[];
   image: string;
   github?: string;
+  demo?: string;
   year: string;
 }
 

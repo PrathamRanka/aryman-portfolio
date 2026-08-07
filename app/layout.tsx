@@ -1,21 +1,5 @@
-import type { Metadata } from 'next';
-import { Inter, JetBrains_Mono } from 'next/font/google';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
-
-// Setup fonts with CSS variables
-const inter = Inter({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-inter',
-  weight: ['300', '400']
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-jetbrains-mono',
-  weight: ['400', '700']
-});
 
 export const metadata: Metadata = {
   title: 'Aryaman Malik | Cybersecurity Analyst & Penetration Tester Portfolio',
@@ -74,11 +58,6 @@ export const metadata: Metadata = {
     images: ['/og-image.png'],
     creator: '@aryamanmalik',
   },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 5,
-  },
   category: 'technology',
   classification: 'Cybersecurity Portfolio',
   applicationName: 'Aryaman Malik Portfolio',
@@ -88,6 +67,12 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -95,8 +80,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      {/* Apply font variables and base classes to the body */}
-      <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans text-gray-300 bg-brand-dark`}>
+      <body className="font-sans text-gray-300 bg-brand-dark">
         {children}
       </body>
     </html>
